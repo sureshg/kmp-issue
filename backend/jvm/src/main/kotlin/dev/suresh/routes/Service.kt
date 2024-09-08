@@ -1,9 +1,6 @@
 package dev.suresh.routes
 
-import dev.suresh.JFR
 import dev.suresh.http.MediaApiClient
-import dev.suresh.lang.FFM
-import dev.suresh.lang.VThread
 import dev.suresh.log.RespLogger
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -17,11 +14,6 @@ import java.io.Writer
 private val logger = KotlinLogging.logger {}
 
 fun Routing.services() {
-  get("/ffm") { call.respondLogStream { FFM.memoryLayout() } }
-
-  get("/vthreads") { call.respondLogStream { VThread.virtualThreads() } }
-
-  get("/jfr") { call.respondLogStream { JFR.recordingStream() } }
 
   get("/trace") {
     call.respond(

@@ -23,26 +23,11 @@ if (isRootProject) {
   nmcp {
     publishAggregation {
       project(":shared")
-      project(":dep-mgmt:bom")
-      project(":dep-mgmt:catalog")
-      project(":meta:ksp:processor")
-      project(":meta:compiler:plugin")
       project(":backend:jvm")
-      project(":backend:data")
-      project(":backend:profiling")
-      project(":backend:security")
       project(":web")
       if (nativeBuild.toBoolean()) {
         project(":backend:native")
       }
-      if (springBoot.toBoolean()) {
-        project(":backend:boot")
-      }
-      if (composeBuild.toBoolean()) {
-        project(":compose:cmp")
-        // project(":compose:html")
-      }
-
       username = mavenCentralUsername
       password = mavenCentralPassword
       publicationType = "AUTOMATIC"

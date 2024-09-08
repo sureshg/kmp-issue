@@ -1,4 +1,0 @@
-module dev.suresh.kmp {
-    requires kotlin.stdlib;
-    requires kotlinx.serialization.core;
-}

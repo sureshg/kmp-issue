@@ -153,9 +153,6 @@ tasks {
 
 dependencies {
   implementation(projects.shared)
-  implementation(projects.backend.data)
-  implementation(projects.backend.profiling)
-  implementation(projects.backend.security)
 
   // Server dependencies
   implementation(libs.ktor.server.core)

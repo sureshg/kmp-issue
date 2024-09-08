@@ -1,8 +1,3 @@
-plugins {
-  plugins.root
-  // alias(libs.plugins.kotlin.multiplatform) apply false
-  // id(libs.plugins.kotlin.multiplatform.get().pluginId)
-  // alias(libs.plugins.kotlin.compose.compiler) apply false
-}
+plugins { plugins.root }
 
-description = "Kotlin Multiplatform Playground!"
+description = "Kotlin Multiplatform Issues!"

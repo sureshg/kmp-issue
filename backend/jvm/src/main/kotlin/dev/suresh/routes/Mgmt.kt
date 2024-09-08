@@ -1,12 +1,7 @@
 package dev.suresh.routes
 
-import dev.suresh.Profiling
 import dev.suresh.jvmRuntimeInfo
-import dev.suresh.plugins.debug
 import io.ktor.http.*
-import io.ktor.http.ContentDisposition.Companion.Attachment
-import io.ktor.http.ContentDisposition.Parameters.FileName
-import io.ktor.http.HttpHeaders.ContentDisposition
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.plugins.*
@@ -16,11 +11,9 @@ import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import io.ktor.websocket.Frame.*
 import java.io.File
-import java.lang.ScopedValue.CallableOp
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.*
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 private val DEBUG = ScopedValue.newInstance<Boolean>()
 
@@ -32,10 +25,7 @@ fun Routing.mgmtRoutes() {
 
   staticFiles(remotePath = "/tmp", dir = docRoot.toFile())
 
-  get("/info") {
-    call.respond(
-        ScopedValue.where(DEBUG, call.debug).call(CallableOp { jvmRuntimeInfo(DEBUG.get()) }))
-  }
+  get("/info") { call.respond(jvmRuntimeInfo(DEBUG.get())) }
 
   get("/browse/{param...}") {
     val reqPath =
@@ -142,36 +132,6 @@ fun Routing.mgmtRoutes() {
               status = HttpStatusCode.NotFound,
           )
     }
-  }
-
-  get("/profile") {
-    when (mutex.isLocked) {
-      true -> call.respondText("Profile operation is already running")
-      else ->
-          mutex.withLock {
-            when (call.request.queryParameters.contains("download")) {
-              true -> {
-                val jfrPath = Profiling.jfrSnapshot()
-                call.response.header(
-                    ContentDisposition,
-                    Attachment.withParameter(FileName, jfrPath.fileName.name).toString())
-                call.respondFile(jfrPath.toFile())
-                jfrPath.deleteIfExists()
-              }
-              else ->
-                  call.respondText(contentType = ContentType.Text.Html) { Profiling.flameGraph() }
-            }
-          }
-    }
-  }
-
-  get("/heapdump") {
-    val heapDumpPath = Profiling.heapdump()
-    call.response.header(
-        ContentDisposition,
-        Attachment.withParameter(FileName, heapDumpPath.fileName.name).toString())
-    call.respondFile(heapDumpPath.toFile())
-    heapDumpPath.deleteIfExists()
   }
 
   webSocketRaw("/term") {
