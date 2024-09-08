@@ -1,0 +1,256 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>: Coverage Report > Env</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope: :<span class="separator">|</span>    <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">dev.suresh</a>
+</div>
+
+<h1>Coverage Summary for Class: Env (dev.suresh)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+<th class="coverageStat 
+">
+  Instruction, %
+</th>
+</tr>
+<tr>
+  <td class="name">Env</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/14)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package dev.suresh
+&nbsp;
+&nbsp;import java.io.File
+&nbsp;import java.lang.StackWalker.Option.RETAIN_CLASS_REFERENCE
+&nbsp;import java.text.DecimalFormat
+&nbsp;import java.text.NumberFormat
+&nbsp;import java.util.concurrent.Semaphore
+&nbsp;import java.util.concurrent.ThreadFactory
+&nbsp;import jdk.jfr.Event
+&nbsp;import jdk.jfr.FlightRecorder
+&nbsp;import kotlin.jvm.optionals.getOrNull
+&nbsp;import kotlin.math.ln
+&nbsp;import kotlin.math.pow
+&nbsp;import kotlin.reflect.KProperty
+&nbsp;
+&nbsp;val DEC_FORMAT = DecimalFormat(&quot;#.##&quot;)
+&nbsp;
+&nbsp;/** Returns the method name contains this call-site */
+&nbsp;inline val methodName
+&nbsp;  get() =
+&nbsp;      StackWalker.getInstance(RETAIN_CLASS_REFERENCE).walk {
+&nbsp;        it.findFirst().getOrNull()?.methodName
+&nbsp;      }
+&nbsp;
+&nbsp;/** Read the [Class] as [ByteArray] */
+&nbsp;fun &lt;T : Class&lt;*&gt;&gt; T.toBytes() =
+&nbsp;    classLoader.getResourceAsStream(&quot;${name.replace(&#39;.&#39;, &#39;/&#39;)}.class&quot;)?.readBytes()
+&nbsp;
+&nbsp;/**
+&nbsp; * Returns the actual class URL
+&nbsp; *
+&nbsp; * ```
+&nbsp; * val url = LogManager::class.java.resourcePath
+&nbsp; * ```
+&nbsp; */
+&nbsp;val &lt;T : Class&lt;*&gt;&gt; T.resourcePath
+&nbsp;  get() = getResource(&quot;$simpleName.class&quot;)
+&nbsp;
+&nbsp;/** Returns the jar file path of the class */
+&nbsp;val &lt;T : Class&lt;*&gt;&gt; T.jarPath
+&nbsp;  get() = protectionDomain.codeSource.location.toURI().path
+&nbsp;
+&nbsp;/** Run the lambda in the context of the receiver classloader. */
+&nbsp;fun ClassLoader.using(run: () -&gt; Unit) {
+&nbsp;  val cl = Thread.currentThread().contextClassLoader
+&nbsp;  try {
+&nbsp;    Thread.currentThread().contextClassLoader = this
+&nbsp;    run()
+&nbsp;  } finally {
+&nbsp;    Thread.currentThread().contextClassLoader = cl
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;/** Returns the file size in a human-readable format. */
+&nbsp;val File.displaySize
+&nbsp;  get() = length().byteDisplaySize()
+&nbsp;
+&nbsp;val Long.compactFmt: String
+&nbsp;  get() = NumberFormat.getCompactNumberInstance().format(this)
+&nbsp;
+&nbsp;/** Converts a string to camelcase by splitting it by space, dash, underscore, or dot. */
+&nbsp;val String.camelCase: String
+&nbsp;  get() =
+&nbsp;      split(&quot;&quot;&quot;[.\-_ ]&quot;&quot;&quot;.toRegex())
+&nbsp;          .mapIndexed { idx, s -&gt; if (idx == 0) s else s.replaceFirstChar { it.uppercaseChar() } }
+&nbsp;          .joinToString(&quot;&quot;)
+&nbsp;
+&nbsp;/**
+&nbsp; * Returns a human-readable version of the Byte size, where the input represents a specific number
+&nbsp; * of bytes.
+&nbsp; * - [SI vs Binary](https://en.wikipedia.org/wiki/Template:Bit_and_byte_prefixes)
+&nbsp; * - [SI](https://en.wikipedia.org/wiki/International_System_of_Units#Prefixes)
+&nbsp; * - [Binary](https://en.wikipedia.org/wiki/Binary_prefix)
+&nbsp; */
+&nbsp;fun Long.byteDisplaySize(si: Boolean = true): String {
+&nbsp;  require(this &gt;= 0) { &quot;Bytes can&#39;t be negative&quot; }
+&nbsp;  val unit = if (si) 1000 else 1024
+&nbsp;  return when (this &lt; unit) {
+&nbsp;    true -&gt; &quot;$this B&quot;
+&nbsp;    else -&gt; {
+&nbsp;      val exp = (ln(toDouble()) / ln(unit.toDouble())).toInt()
+&nbsp;      val siSymbol = &quot;kMGTPEZY&quot;[exp - 1].toString()
+&nbsp;      val prefix = if (si) siSymbol else &quot;${siSymbol.uppercase()}i&quot;
+&nbsp;      val size = this / unit.toDouble().pow(exp)
+&nbsp;      &quot;${DEC_FORMAT.format(size)} ${prefix}B&quot;
+&nbsp;    }
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;fun IntArray.codePointsToString(): String = buildString {
+&nbsp;  for (cp in this@codePointsToString) {
+&nbsp;    appendCodePoint(cp)
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;fun IntArray.codePointsToString(separator: String = &quot;&quot;) =
+&nbsp;    joinToString(separator) { Character.toString(it) }
+&nbsp;
+&nbsp;/** Adds a periodic event to the JFR stream. */
+&nbsp;inline fun &lt;reified T : Event&gt; addPeriodicJFREvent(event: T, crossinline block: T.() -&gt; Unit) {
+&nbsp;  FlightRecorder.addPeriodicEvent(T::class.java) {
+&nbsp;    block(event)
+&nbsp;    event.commit()
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;fun semaphoreThreadFactory(s: Semaphore, tf: ThreadFactory = Thread.ofVirtual().factory()) =
+&nbsp;    ThreadFactory {
+&nbsp;      try {
+&nbsp;        s.acquire()
+&nbsp;        tf.newThread {
+&nbsp;          try {
+&nbsp;            it.run()
+&nbsp;          } finally {
+&nbsp;            s.release()
+&nbsp;          }
+&nbsp;        }
+&nbsp;      } catch (e: InterruptedException) {
+&nbsp;        Thread.currentThread().interrupt()
+&nbsp;        throw RuntimeException(e)
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;/** System env var property delegate. */
+&nbsp;object Env {
+&nbsp;  operator fun getValue(thisRef: Any?, property: KProperty&lt;*&gt;): String =
+<b class="nc">&nbsp;      System.getenv(property.name) ?: error(&quot;${property.name} not passed as environment&quot;)</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-09-08 16:44</div>
+</div>
+</body>
+</html>
