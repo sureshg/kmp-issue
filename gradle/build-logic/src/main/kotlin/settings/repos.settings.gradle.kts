@@ -42,6 +42,7 @@ pluginManagement {
     gradlePluginPortal()
     googleAndroid()
     kobWeb()
+    maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
   }
 }
 
@@ -63,6 +64,7 @@ dependencyResolutionManagement {
     mavenCentral()
     googleAndroid()
     kobWeb()
+    maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
   }
 
   // Enable back after the KMP Node.js repo fix.
