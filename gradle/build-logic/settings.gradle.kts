@@ -3,8 +3,8 @@ dependencyResolutionManagement {
   repositories {
     mavenCentral()
     gradlePluginPortal()
-    maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
   }
+
   versionCatalogs { register("libs") { from(files("../libs.versions.toml")) } }
   repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
 }

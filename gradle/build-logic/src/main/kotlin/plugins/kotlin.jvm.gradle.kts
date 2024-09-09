@@ -3,20 +3,17 @@ package plugins
 import com.github.ajalt.mordant.rendering.TextColors
 import com.google.cloud.tools.jib.gradle.BuildDockerTask
 import com.google.devtools.ksp.gradle.KspAATask
+import com.javiersc.kotlin.kopy.args.KopyFunctions
 import common.*
-import java.io.PrintWriter
-import java.io.StringWriter
+import java.io.*
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.jar.Attributes
 import java.util.spi.ToolProvider
-import kotlinx.validation.ApiValidationExtension
-import kotlinx.validation.KotlinApiBuildTask
+import kotlinx.validation.*
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.kotlin.dsl.*
-import tasks.Jdeprscan
-import tasks.JdeprscanExtension
-import tasks.ReallyExecJar
+import tasks.*
 
 plugins {
   `java-library`
@@ -24,8 +21,9 @@ plugins {
   kotlin("plugin.serialization")
   kotlin("plugin.power-assert")
   com.google.devtools.ksp
-  org.jetbrains.kotlinx.atomicfu
   dev.zacsweers.redacted
+  com.javiersc.kotlin.kopy
+  org.jetbrains.kotlinx.atomicfu
   id("plugins.kotlin.docs")
   // kotlin("plugin.atomicfu")
   // `test-suite-base`
@@ -78,6 +76,8 @@ ksp {
 }
 
 powerAssert { functions = listOf("kotlin.assert", "kotlin.test.assertTrue") }
+
+kopy { functions = KopyFunctions.Copy }
 
 redacted {
   enabled = true

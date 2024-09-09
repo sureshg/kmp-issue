@@ -15,8 +15,6 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.*
 import kotlinx.coroutines.sync.Mutex
 
-private val DEBUG = ScopedValue.newInstance<Boolean>()
-
 val mutex = Mutex()
 
 val docRoot = Path(System.getProperty("java.io.tmpdir"))
@@ -25,7 +23,7 @@ fun Routing.mgmtRoutes() {
 
   staticFiles(remotePath = "/tmp", dir = docRoot.toFile())
 
-  get("/info") { call.respond(jvmRuntimeInfo(DEBUG.get())) }
+  get("/info") { call.respond(jvmRuntimeInfo()) }
 
   get("/browse/{param...}") {
     val reqPath =

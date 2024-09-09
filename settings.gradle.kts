@@ -1,4 +1,11 @@
-pluginManagement { includeBuild("gradle/build-logic") }
+pluginManagement {
+  repositories {
+    // https://github.com/gradle/gradle/issues/16654
+    mavenCentral()
+    gradlePluginPortal()
+  }
+  includeBuild("gradle/build-logic")
+}
 
 plugins { id("settings.repos") }
 
